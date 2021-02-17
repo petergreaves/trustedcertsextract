@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -17,12 +17,12 @@ import java.util.List;
 @Component
 @Slf4j
 public class TCWriterFile implements TCWriter{
-    private Logger logger = LoggerFactory.getLogger(TCWriterFile.class);
+    private final Logger logger = LoggerFactory.getLogger(TCWriterFile.class);
 
     @Value("${trustedcerts.file.path}")
     private String outputFilePath;
 
-    private final List<String> certInserts = new ArrayList<String>();
+    private final List<String> certInserts = new ArrayList<>();
 
 
     @Override
@@ -36,16 +36,18 @@ public class TCWriterFile implements TCWriter{
     public void write() throws FileNotFoundException {
 
         // now write to a file - each line is a SQL INSERT
-        final PrintWriter writer = new PrintWriter(new File(outputFilePath));
+        final PrintWriter writer = new PrintWriter(outputFilePath);
+
+        final String defineStatement = "SET DEFINE OFF;" + System.lineSeparator();
 
         try {
-            writer.write("SET DEFINE OFF;\n"); //in case the cert name includes &
+            writer.write(defineStatement); //in case the cert name includes &
             writer.flush();
 
             // now the cert data
             certInserts.forEach(s -> {
 
-                writer.write(s+"\n");
+                writer.write(s+ System.lineSeparator());
                 writer.flush();
 
             } );
